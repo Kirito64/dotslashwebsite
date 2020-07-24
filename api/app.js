@@ -10,7 +10,6 @@ const session = require('express-session')
 const passport = require('passport')
 const passportLocalMongoose = require('passport-local-mongoose')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
-const findOrCreate = require('mongoose-findorcreate')
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -71,14 +70,18 @@ mongoose.set('useCreateIndex', true)
 
 //USERS-COLLECTION-SCHEMA
 const userSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
   email: String,
+  verified: Boolean,
   password: String,
   googleId: String,
-})
+  picture: String,
+  language: String
+});
 
 //SALT-USER-PASSWORD-AND-MORE-WITH-PASSPORT-PLUGIN
 userSchema.plugin(passportLocalMongoose)
-userSchema.plugin(findOrCreate)
 
 //USER-DATA-MODEL
 const User = new mongoose.model('user', userSchema)
@@ -103,17 +106,41 @@ passport.use(new GoogleStrategy(
       callbackURL: 'http://localhost:3000/auth/google/dotslash',
       userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
     },
-    function (accessToken, refreshToken, profile, cb) {
-      // console.log(profile);
-      User.findOrCreate({ googleId: profile.id, email:profile.email }, function (err, user) {
-        return cb(err, user)
+    function (accessToken, refreshToken, profile, done) {
+      User.findOne({ googleId: profile.id }, function (err, user) {
+        if (err)
+          return done(err);
+        if (user)
+          return done(null, user);
+        else {
+          var newUser = new User({
+            googleId: profileData.sub,
+            firstName: profileData.given_name,
+            lastName: profileData.family_name,
+            email: profileData.email,
+            verified: profileData.email_verified,
+            picture: profileData.picture,
+            language: profileData.locale
+          });
+
+          newUser.save(function(err) {
+          if (err)
+            throw err;
+            return done(err, newUser);
+          });
+        }
       })
     }
   )
-)
+);
 
 //SIGN-IN-WITH-GOOGLE
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
+app.get('/auth/google',
+  passport.authenticate('google', { scope: [
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email'
+  ] })
+);
 
 app.get('/auth/google/dotslash',
   passport.authenticate('google', { failureRedirect: '/login' }),
