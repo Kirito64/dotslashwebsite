@@ -34,7 +34,7 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500)
   res.render('error')
 })
-
+console.log(AuthController)
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(
   session({
@@ -47,13 +47,15 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 //SIGN-IN-WITH-GOOGLE
-app.get('/auth/google', AuthController().GoogleOAuth())
-app.get('/auth/google/dotslash', AuthController().GoogleOAuthdotslash(res, req))
+app.get('/auth/google', AuthController.GoogleOAuth())
+app.get('/auth/google/dotslash', (req, res) =>
+  AuthController.GoogleOAuthdotslash(req, res)
+)
 //LOGOUT-USER
-app.get('/logout', AuthController().Logout(req, res))
+app.get('/logout', (req, res) => AuthController.Logout(req, res))
 //REGISTER-NEW-USER
-app.post('/register', AuthController().RegisterNewUser(req, res))
+app.post('/register', (req, res) => AuthController.RegisterNewUser(req, res))
 //LOGIN-USER
-app.post('/login', AuthController().LoginUser(req, res))
+app.post('/login', (req, res) => AuthController.LoginUser(req, res))
 
 module.exports = app

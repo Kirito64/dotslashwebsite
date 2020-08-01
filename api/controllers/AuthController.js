@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 const passport = require('passport')
 const passportLocalMongoose = require('passport-local-mongoose')
 const GoogleStrategy = require('passport-google-oauth20').Strategy
-
 const serverAdmin = process.env.ADMIN
 const accessKey = process.env.AUTH_KEY
 const database = process.env.DB
@@ -92,7 +91,7 @@ passport.use(
 
 const AuthController = () => {
   const GoogleOAuth = () => {
-    passport.authenticate('google', {
+    return passport.authenticate('google', {
       scope: [
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email',
@@ -101,14 +100,12 @@ const AuthController = () => {
   }
 
   const GoogleOAuthdotslash = (res, req) => {
-    assport.authenticate('google', { failureRedirect: '/login' }),
+    passport.authenticate('google', { failureRedirect: '/login' }),
       function (req, res) {
         // SUCCESSFUL-AUTHENTICATION-REDIRECT-HOME
         res.redirect('/')
       }
   }
-
-  p
 
   //LOGOUT-USER
   const Logout = (req, res) => {
