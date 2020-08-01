@@ -51,3 +51,8 @@ margin-bottom: 50px;
 .post-meta {
     font-size: .8rem;
 }
+
+.cardimg {
+    width: 20%;
+    align-items: center;
+}
