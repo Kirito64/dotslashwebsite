@@ -3,9 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import Footer from "./components/Home/footer/footer";
 import * as serviceWorker from './serviceWorker';
+import App from './components/Home/body/Events';
+
+
 ReactDOM.render(
   <React.StrictMode>
-    <Footer/>
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
