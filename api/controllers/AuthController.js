@@ -7,14 +7,10 @@ const serverAdmin = process.env.ADMIN
 const accessKey = process.env.AUTH_KEY
 const database = process.env.DB
 
+const User = require('../models/User')
+
 mongoose.connect(
-  'mongodb+srv://' +
-    serverAdmin +
-    ':' +
-    accessKey +
-    '@cluster0-1o0xw.mongodb.net/' +
-    database +
-    '?retryWrites=true&w=majority',
+  'mongodb+srv://jatin:JATINasdf@cluster0.rpotc.mongodb.net/userdb?retryWrites=true&w=majority',
   {
     useNewUrlParser: true,
     useFindAndModify: true,
@@ -25,26 +21,13 @@ mongoose.connect(
 mongoose.set('useCreateIndex', true)
 
 //USERS-COLLECTION-SCHEMA
-const userSchema = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  email: String,
-  verified: Boolean,
-  password: String,
-  googleId: String,
-  picture: String,
-  language: String,
-})
 
 //SALT-USER-PASSWORD-AND-MORE-WITH-PASSPORT-PLUGIN
 userSchema.plugin(passportLocalMongoose)
-
 //USER-DATA-MODEL
-const User = new mongoose.model('user', userSchema)
 
 //LOCAL-LOGIN-STRATEGY-AND-COOKIES
 passport.use(User.createStrategy())
-
 passport.serializeUser(function (user, done) {
   done(null, user.id)
 })
@@ -106,7 +89,6 @@ const AuthController = () => {
         res.redirect('/')
       }
   }
-
   //LOGOUT-USER
   const Logout = (req, res) => {
     req.logout()
@@ -129,6 +111,7 @@ const AuthController = () => {
         }
       }
     )
+    return res.status(200).json(req.body.username)
   }
 
   //LOGIN-USER
